@@ -33,6 +33,17 @@ class View {
       }
     });
   }
+  // viewEmployees() {
+  //   let sql = `SELECT * FROM ${this.item} WHERE role_id IS role.id `;
+  //   db.query(sql, (err, result) => {
+  //     if (err) {
+  //       console.log(err);
+  //     } else {
+  //       console.table(result);
+  //       init();
+  //     }
+  //   });
+  // }
 }
 
 const addEmployee = () => {
@@ -81,64 +92,69 @@ const addEmployee = () => {
     });
 };
 
-
 const addDepartment = () => {
-  inquirer.prompt([
-    {
-      type:'input',
-      name:'department',
-      message:'Enter Department name'
-    }
-  ])
-  .then((answer)=> {
-    let sql = `INSERT INTO department (name) 
+  inquirer
+    .prompt([
+      {
+        type: "input",
+        name: "department",
+        message: "Enter Department name",
+      },
+    ])
+    .then((answer) => {
+      let sql = `INSERT INTO department (name) 
     VALUES ("${answer.department}")
-    `
-    db.query(sql,(err,result)=> {
-      if(err) {
-        console.log(err)
-      } else {
-        console.log("Successfully added ",answer.department)
-        init()
-      }
-    })
-  })
-}
+    `;
+      db.query(sql, (err, result) => {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log("Successfully added ", answer.department);
+          init();
+        }
+      });
+    });
+};
 
 const addRole = () => {
-  inquirer.prompt([
-    {
-      type:'input',
-      name:'role',
-      message:'Enter role'
-    },
-    {
-      type:'input',
-      name:'rolebelong',
-      message:'Which department ID this role belongs to?',
-      choices:[1,2,3,4,5]
-    },
-    {
-      type:'input',
-      name:'salary',
-      message:'Enter the salary'
-    }
-  ])
-  .then((answer)=> {
-    const {role,rolebelong,salary} = answer
-    let sql = `INSERT INTO roles (department_id,title,salary)
-    VALUES (${rolebelong},"${role}","${salary}")`
-    db.query(sql,(err,result)=> {
-      if(err) {
-        console.log(err)
-      } else {
-        console.log("Successfully added", role)
-        init()
-      }
-    })
-  })
-}
+  inquirer
+    .prompt([
+      {
+        type: "input",
+        name: "role",
+        message: "Enter role",
+      },
+      {
+        type: "input",
+        name: "rolebelong",
+        message: "Which department ID this role belongs to?",
+        choices: [1, 2, 3, 4, 5],
+      },
+      {
+        type: "input",
+        name: "salary",
+        message: "Enter the salary",
+      },
+    ])
+    .then((answer) => {
+      const { role, rolebelong, salary } = answer;
+      let sql = `INSERT INTO roles (department_id,title,salary)
+    VALUES (${rolebelong},"${role}","${salary}")`;
+      db.query(sql, (err, result) => {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log("Successfully added", role);
+          init();
+        }
+      });
+    });
+};
 
+
+const updateEmployee = () => {
+    // continue from here//////////////////////////////////////////////////////////////////////////////////////////////////
+}
 
 const init = () => {
   inquirer
@@ -153,8 +169,7 @@ const init = () => {
           "View All Employees",
           "Add Department",
           "Add Role",
-          "Add an Employee",
-          "Update an Employee Role",
+          "Add an Employee"
         ],
       },
     ])
@@ -183,9 +198,10 @@ const init = () => {
         case "Add Department":
           answerId = 3;
           break;
-          case "Add Role":
-            answerId = 4;
-            break;
+        case "Add Role":
+          answerId = 4;
+          break;
+
         default:
           console.log("test");
           break;
@@ -197,12 +213,12 @@ const init = () => {
       } else if (answerId === 2) {
         addEmployee();
       } else if (answerId === 3) {
-        addDepartment()
+        addDepartment();
       } else if (answerId === 4) {
-        addRole()
+        addRole();
+      } else if (answerId === 5) {
+        updateEmployee();
       }
-
-    
     });
 };
 

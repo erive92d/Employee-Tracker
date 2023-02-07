@@ -13,7 +13,6 @@ VALUES (001,"Sales Lead",100000),
     (003,"Accountant",100000),
     (004,"Legal Team Lead",250000),
     (004,"Lawyer",200000);
-   
-
-INSERT INTO employee(role_id,first_name,last_name,role,manager_id)
-VALUES (007,"John","Doe","Lawyer",1);
+    
+INSERT INTO employee(role_id,first_name,last_name,manager_id)
+VALUES (007,"John","Doe",1);
