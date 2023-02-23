@@ -36,10 +36,7 @@ Package(s) needed in order for this project to run:
 inquirer mysql console.table dotenv
 
 ## Usage
-To add a screenshot, create an assets/images folder in your repository and upload your screenshot to it.
-
-![alt text](assets/images/screenshot.png)
-
+![2023-02-23](https://user-images.githubusercontent.com/110507887/221055243-95605eea-333d-48b8-99cf-0e1ee1aefba5.png)
 
 
 ## Credits
