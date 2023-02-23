@@ -18,35 +18,91 @@ const db = mysql.createConnection(
   console.log(`Connected to the team_db database.`)
 );
 
-class View {
-  constructor(item) {
-    this.item = item;
-  }
-  viewItem() {
-    let sql = `SELECT * FROM ${this.item}`;
-    db.query(sql, (err, result) => {
-      if (err) {
-        console.log(err);
-      } else {
-        console.table(result);
-        init();
-      }
-    });
-  }
-  // viewEmployees() {
-  //   let sql = `SELECT * FROM ${this.item} WHERE role_id IS role.id `;
-  //   db.query(sql, (err, result) => {
-  //     if (err) {
-  //       console.log(err);
-  //     } else {
-  //       console.table(result);
-  //       init();
-  //     }
-  //   });
-  // }
-}
+// class View {
+//   constructor(item) {
+//     this.item = item;
+//   }
+//   viewItem() {
+//     let sql = `SELECT e.id, e.first_name, e.last_name, r.title, d.name AS department, r.salary, CONCAT(m.first_name, ' ', m.last_name) AS manager
+//     FROM ${this.item}`;
+//     db.query(sql, (err, result) => {
+//       if (err) {
+//         console.log(err);
+//       } else {
+//         console.table(result);
+//         init();
+//       }
+//     });
+// }
+// viewEmployees() {
+//   let sql = `SELECT * FROM ${this.item} WHERE role_id IS role.id `;
+//   db.query(sql, (err, result) => {
+//     if (err) {
+//       console.log(err);
+//     } else {
+//       console.table(result);
+//       init();
+//     }
+//   });
+// }
+// }
+
+const viewDepartments = () => {
+  let sql = `SELECT d.name AS Department FROM department d`;
+  db.query(sql, (err, result) => {
+    if (err) {
+      console.log(err);
+    }
+    console.table(result);
+    init();
+  });
+};
+
+const viewEmployees = () => {
+  // let sql = `SELECT * FROM employee`;
+  let sql = `SELECT CONCAT(e.first_name,  ' ' , e.last_name) AS Fullname, r.title AS Role, d.name AS Department, r.salary AS Salary FROM employee e
+    LEFT JOIN roles r ON e.role_id = r.id
+    LEFT JOIN department d ON d.id = r.department_id
+  `;
+  db.query(sql, (err, result) => {
+    if (err) {
+      console.log(err);
+    }
+    console.table(result);
+    init();
+  });
+};
+
+const viewRoles = () => {
+  let sql = `SELECT r.title AS Role, r.id AS RoleID FROM roles r`;
+  db.query(sql, (err, result) => {
+    if (err) {
+      console.log(err);
+    }
+    console.table(result);
+    init();
+  });
+};
 
 const addEmployee = () => {
+  let sql = `SELECT * FROM roles`
+  db.query(sql,(err,result)=> {
+    if(err) {
+      console.log(err)
+    }
+    const roleNames = result.map(({ id, title, salary }) => ({
+      value: id, title: `${title}`, salary: `${salary}`
+    }));
+    console.log(roleNames,'@@@@@')
+
+    promptInfos(roleNames)
+
+    
+  })
+ 
+};
+
+const promptInfos = (roles) => {
   inquirer
     .prompt([
       {
@@ -62,25 +118,21 @@ const addEmployee = () => {
       {
         type: "list",
         name: "role",
-        message: "Enter role",
-        choices: ["Salesperson", "Software Engineer", "Accountant", "Lawyer"],
-      },
-      {
-        type: "input",
-        name: "roleid",
         message: "Enter role ID",
+        choices: roles,
       },
       {
-        type: "input",
-        name: "managerid",
-        message: "Enter Manager ID",
-      },
+        type:"input",
+        name:'managerid',
+        message:'Enter Manager ID'
+      }
+      
     ])
     .then((answer) => {
-      const { roleid, firstname, lastname, role, managerid } = answer;
-      console.log(answer);
-      let sql = `INSERT INTO employee (role_id,first_name,last_name,role,manager_id)
-        VALUES (${roleid},"${firstname}","${lastname}","${role}",${managerid});`;
+      console.log(answer, 'ROLE IDDD');
+      const { firstname, lastname, role, managerid } = answer;
+      let sql = `INSERT INTO employee (role_id,first_name,last_name,manager_id)
+        VALUES (00${role},"${firstname}","${lastname}",${managerid})`;
       db.query(sql, (err, result) => {
         if (err) {
           console.log(err);
@@ -90,7 +142,7 @@ const addEmployee = () => {
         }
       });
     });
-};
+}
 
 const addDepartment = () => {
   inquirer
@@ -117,7 +169,18 @@ const addDepartment = () => {
 };
 
 const addRole = () => {
-  inquirer
+  let sql = `SELECT * FROM department`
+  db.query(sql,(err,result)=> {
+    if(err){
+      console.log(err)
+    }
+    console.table(result)
+    let response = result.map((res)=> {
+      return res.id
+    })
+
+    console.log(response)
+    inquirer
     .prompt([
       {
         type: "input",
@@ -125,10 +188,10 @@ const addRole = () => {
         message: "Enter role",
       },
       {
-        type: "input",
+        type: "list",
         name: "rolebelong",
         message: "Which department ID this role belongs to?",
-        choices: [1, 2, 3, 4, 5],
+        choices: response,
       },
       {
         type: "input",
@@ -149,12 +212,14 @@ const addRole = () => {
         }
       });
     });
+  })
+
+  
 };
 
-
 const updateEmployee = () => {
-    // continue from here//////////////////////////////////////////////////////////////////////////////////////////////////
-}
+  // continue from here//////////////////////////////////////////////////////////////////////////////////////////////////
+};
 
 const init = () => {
   inquirer
@@ -169,55 +234,34 @@ const init = () => {
           "View All Employees",
           "Add Department",
           "Add Role",
-          "Add an Employee"
+          "Add an Employee",
         ],
       },
     ])
     .then((answer) => {
-      let newAnswer = "";
-      let answerId = "";
       switch (answer.options) {
         case "View All Departments":
-          answer.options = "department";
-          newAnswer = answer.options;
-          answerId = 1;
+          viewDepartments();
           break;
         case "View All Roles":
-          answer.options = "roles";
-          newAnswer = answer.options;
-          answerId = 1;
+          viewRoles();
           break;
         case "View All Employees":
-          answer.options = "employee";
-          newAnswer = answer.options;
-          answerId = 1;
+          viewEmployees();
           break;
         case "Add an Employee":
-          answerId = 2;
+          addEmployee()
           break;
         case "Add Department":
-          answerId = 3;
+          addDepartment()
           break;
         case "Add Role":
-          answerId = 4;
+          addRole()
           break;
 
         default:
           console.log("test");
           break;
-      }
-
-      if (answerId === 1) {
-        const viewDepartment = new View(newAnswer);
-        viewDepartment.viewItem();
-      } else if (answerId === 2) {
-        addEmployee();
-      } else if (answerId === 3) {
-        addDepartment();
-      } else if (answerId === 4) {
-        addRole();
-      } else if (answerId === 5) {
-        updateEmployee();
       }
     });
 };
